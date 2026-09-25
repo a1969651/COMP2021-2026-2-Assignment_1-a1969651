@@ -13,6 +13,7 @@ public sealed class RecipeManager : IRecipeManager
 
     Dictionary<int, Recipe> recipes = new Dictionary<int, Recipe>();
     List<string> shoppingList = new List<string>();
+    LinkedList<int> cookingPlan = new LinkedList<int>();
     
     public RecipeManager(IEnumerable<Recipe> recipes)
     {
@@ -34,7 +35,7 @@ public sealed class RecipeManager : IRecipeManager
 
     public int RecipeCount => recipes.Count;
     public int ShoppingItemCount => shoppingList.Count;
-    public int CookingPlanCount => 0;
+    public int CookingPlanCount => cookingPlan.Count;
     public int PendingInstructionCount => 0;
     public int RemovedRecipeCount => 0;
 
@@ -87,11 +88,26 @@ public sealed class RecipeManager : IRecipeManager
         shoppingList.Clear();
     }
 
-    public bool AddRecipeToCookingPlan(int recipeId) =>
-        throw new NotImplementedException("Part A: implement AddRecipeToCookingPlan.");
+    public bool AddRecipeToCookingPlan(int recipeId)
+    {
+        if (!recipes.ContainsKey(recipeId))
+        {
+            return false;
+        }
+ 
+        if (cookingPlan.Contains(recipeId))
+        {
+            return false;
+        }
+ 
+        cookingPlan.AddLast(recipeId);
+        return true;
+    }
 
-    public bool RemoveRecipeFromCookingPlan(int recipeId) =>
-        throw new NotImplementedException("Part A: implement RemoveRecipeFromCookingPlan.");
+    public bool RemoveRecipeFromCookingPlan(int recipeId) 
+    {
+        cookingPlan.Remove(recipeID);
+    }
 
     public bool RestoreLastRemovedRecipe() =>
         throw new NotImplementedException("Part A: implement RestoreLastRemovedRecipe.");
@@ -99,8 +115,17 @@ public sealed class RecipeManager : IRecipeManager
     public int? PeekLastRemovedRecipe() =>
         throw new NotImplementedException("Part A: implement PeekLastRemovedRecipe.");
 
-    public IReadOnlyList<int> GetCookingPlan() =>
-        throw new NotImplementedException("Part A: implement GetCookingPlan.");
+    public IReadOnlyList<int> GetCookingPlan()
+    {
+        List<int> plan = new List<int>();
+ 
+        foreach (int id in cookingPlan)
+        {
+            plan.Add(id);
+        }
+ 
+        return plan;
+    }
 
     public bool StartCooking(int recipeId) =>
         throw new NotImplementedException("Part A: implement StartCooking.");
