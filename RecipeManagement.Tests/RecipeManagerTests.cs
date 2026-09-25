@@ -39,6 +39,71 @@ public sealed class RecipeManagerTests
         Assert.Equal(new[] { 20 }, manager.GetCookingPlan());
     }
 
+    [Fact]
+    public void DuplicateIds()
+    {
+        var duplicates = new[]
+        {
+            new Recipe { Id = 10, Title = "A" },
+            new Recipe { Id = 10, Title = "B" }
+        };
+ 
+        Assert.Throws<ArgumentException>(() => new RecipeManager(duplicates));
+    }
+ 
+    [Fact]
+    public void AddRecipe()
+    {
+        var manager = CreateManager();
+ 
+        bool add = manager.AddRecipe(new Recipe { Id = 30, Title = "Recipe C" });
+ 
+        Assert.True(add);
+        Assert.Equal(3, manager.RecipeCount);
+    }
+ 
+    [Fact]
+    public void FindRecipe()
+    {
+        var manager = CreateManager();
+ 
+        Assert.Equal("Recipe A", manager.FindRecipe(10)?.Title);
+        Assert.Null(manager.FindRecipe(999));
+    }
+ 
+    [Fact]
+    public void RemoveRecipe()
+    {
+        var manager = CreateManager();
+ 
+        Assert.True(manager.RemoveRecipe(10));
+        Assert.False(manager.RemoveRecipe(999));
+        Assert.Equal(1, manager.RecipeCount);
+    }
+ 
+    [Fact]
+    public void AddIngredientsToShoppingList()
+    {
+        var manager = CreateManager();
+ 
+        int add = manager.AddIngredientsToShoppingList(10);
+ 
+        Assert.Equal(1, add);
+        Assert.Equal(new[] { "1 apple" }, manager.GetShoppingList());
+    }
+ 
+    [Fact]
+    public void ClearShoppingList()
+    {
+        var manager = CreateManager();
+        manager.AddIngredientsToShoppingList(10);
+ 
+        manager.ClearShoppingList();
+ 
+        Assert.Empty(manager.GetShoppingList());
+    }
+
+
     private static RecipeManager CreateManager()
     {
         return new RecipeManager(new[]
