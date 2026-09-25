@@ -10,28 +10,54 @@ namespace RecipeManagement.Core;
 /// </summary>
 public sealed class RecipeManager : IRecipeManager
 {
-    // TODO Part A: add your private collection fields here.
 
+    Dictionary<int, Recipe> recipes = new Dictionary<int, Recipe>();
+    
     public RecipeManager(IEnumerable<Recipe> recipes)
     {
-        // TODO Part A: validate recipes and build Dictionary<int, Recipe>.
-        _ = recipes;
+        ArgumentNullException.ThrowIfNull(recipes);
+
+        foreach (Recipe recipe in recipes)
+        {
+            if (recipe is null)
+            {
+                throw new ArgumentException ("Recipe information cannot be null", nameof(recipes));
+            }
+
+        if (!this.recipes.TryAdd(recipe.Id, recipe))
+            {
+                throw new ArgumentException($"Duplicate recipe ID {recipe.Id}", nameof(recipes));
+            }
+        }
     }
 
-    public int RecipeCount => 0;
+    public int RecipeCount => recipes.Count;
     public int ShoppingItemCount => 0;
     public int CookingPlanCount => 0;
     public int PendingInstructionCount => 0;
     public int RemovedRecipeCount => 0;
 
-    public bool AddRecipe(Recipe recipe) =>
-        throw new NotImplementedException("Part A: implement AddRecipe.");
+    public bool AddRecipe(Recipe recipe)
+    {
+        return recipes.TryAdd(recipe.Id, recipe);
+    }
 
-    public Recipe? FindRecipe(int recipeId) =>
-        throw new NotImplementedException("Part A: implement FindRecipe.");
+    public Recipe? FindRecipe(int recipeId)
+    {
+        if (recipes.ContainsKey(recipeId))
+        {
+            return recipes[recipeId];
+        }
+        else
+        {
+            return null;
+        }
+    }
 
-    public bool RemoveRecipe(int recipeId) =>
-        throw new NotImplementedException("Part A: implement RemoveRecipe.");
+    public bool RemoveRecipe(int recipeId)
+    {
+            return recipes.Remove(recipeId);
+    }
 
     public int AddIngredientsToShoppingList(int recipeId) =>
         throw new NotImplementedException("Part A: implement AddIngredientsToShoppingList.");
