@@ -14,6 +14,7 @@ public sealed class RecipeManager : IRecipeManager
     Dictionary<int, Recipe> recipes = new Dictionary<int, Recipe>();
     List<string> shoppingList = new List<string>();
     LinkedList<int> cookingPlan = new LinkedList<int>();
+    Stack<int> removedRecipes = new Stack<int>();
     
     public RecipeManager(IEnumerable<Recipe> recipes)
     {
@@ -37,7 +38,7 @@ public sealed class RecipeManager : IRecipeManager
     public int ShoppingItemCount => shoppingList.Count;
     public int CookingPlanCount => cookingPlan.Count;
     public int PendingInstructionCount => 0;
-    public int RemovedRecipeCount => 0;
+    public int RemovedRecipeCount => removedRecipes.Count;
 
     public bool AddRecipe(Recipe recipe)
     {
@@ -106,14 +107,37 @@ public sealed class RecipeManager : IRecipeManager
 
     public bool RemoveRecipeFromCookingPlan(int recipeId) 
     {
-        cookingPlan.Remove(recipeID);
+        if (cookingPlan.Remove(recipeId))
+        {
+            removedRecipes.Push(recipeId);
+            return true;
+        }
+
+        return false;
     }
 
-    public bool RestoreLastRemovedRecipe() =>
-        throw new NotImplementedException("Part A: implement RestoreLastRemovedRecipe.");
+    public bool RestoreLastRemovedRecipe()
+    {
+        if (removedRecipes.Count == 0)
+        {
+            return false;
+        }
+ 
+        int recipeId = removedRecipes.Pop();
+ 
+        if (cookingPlan.Contains(recipeId))
+        {
+            return false;
+        }
+ 
+        cookingPlan.Add(recipeId);
+        return true;
+    }
 
-    public int? PeekLastRemovedRecipe() =>
-        throw new NotImplementedException("Part A: implement PeekLastRemovedRecipe.");
+    public int? PeekLastRemovedRecipe()
+    {
+        return removedRecipes.Peek();
+    }
 
     public IReadOnlyList<int> GetCookingPlan()
     {
