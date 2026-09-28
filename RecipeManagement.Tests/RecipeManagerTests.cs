@@ -184,14 +184,10 @@ public sealed class RecipeManagerTests
     }
  
     [Fact]
-    public void StartCookingReplacesOldInstructions()
+    public void StartCookingWithNoInstructions()
     {
         var manager = CreateManager();
-        manager.StartCooking(10);
- 
-        manager.StartCooking(20);
- 
-        Assert.Equal(0, manager.PendingInstructionCount);
+        Assert.False(manager.StartCooking(20));
     }
  
     [Fact]
