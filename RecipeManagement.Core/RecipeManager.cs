@@ -29,9 +29,19 @@ public sealed class RecipeManager : IRecipeManager
             }
 
             if (!this.recipes.TryAdd(recipe.Id, recipe))
-                {
-                    throw new ArgumentException($"Duplicate recipe ID {recipe.Id}", nameof(recipes));
-                }
+            {
+                throw new ArgumentException($"Duplicate recipe ID {recipe.Id}", nameof(recipes));
+            }
+
+            if (recipe.Id <= 0)
+            {
+                throw new ArgumentException("Recipe ID not valid", nameof(recipes));
+            }
+
+            if (string.IsNullOrWhiteSpace(recipe.Title))
+            {
+                throw new ArgumentException("Recipe name can't be empty", nameof(recipes));
+            }
         }
     }
 
@@ -42,7 +52,19 @@ public sealed class RecipeManager : IRecipeManager
     public int RemovedRecipeCount => removedRecipes.Count;
 
     public bool AddRecipe(Recipe recipe)
-    {
+    { 
+        ArgumentNullException.ThrowIfNull(recipe);
+
+        if (recipe.Id <= 0)
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(recipe.Title))
+        {
+            return false;
+        }
+
         return recipes.TryAdd(recipe.Id, recipe);
     }
 
@@ -60,7 +82,12 @@ public sealed class RecipeManager : IRecipeManager
 
     public bool RemoveRecipe(int recipeId)
     {
-            return recipes.Remove(recipeId);
+        if (cookingPlan.Contains(recipeId))
+        {
+            return false;
+        }
+ 
+        return recipes.Remove(recipeId);
     }
 
     public int AddIngredientsToShoppingList(int recipeId)
@@ -82,7 +109,7 @@ public sealed class RecipeManager : IRecipeManager
 
     public IReadOnlyList<string> GetShoppingList()
     {
-        return shoppingList;
+        return new List<string>(shoppingList);
     }
 
     public void ClearShoppingList() 
@@ -130,6 +157,11 @@ public sealed class RecipeManager : IRecipeManager
         {
             return false;
         }
+
+        if (!recipes.ContainsKey(recipeId))
+        {
+           return false;
+        }
  
         cookingPlan.AddLast(recipeId);
         return true;
@@ -164,6 +196,13 @@ public sealed class RecipeManager : IRecipeManager
             return false;
         }
  
+        Recipe recipe = recipes[recipeId];
+
+        if (recipe.Instructions.Count == 0)
+        {
+            return false;
+        }
+
         instructions.Clear();
  
         foreach (string step in recipes[recipeId].Instructions)
