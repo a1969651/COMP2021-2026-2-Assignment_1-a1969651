@@ -103,6 +103,112 @@ public sealed class RecipeManagerTests
         Assert.Empty(manager.GetShoppingList());
     }
 
+    [Fact]
+    public void AddToCookingPlan()
+    {
+        var manager = CreateManager();
+ 
+        Assert.True(manager.AddRecipeToCookingPlan(20));
+        Assert.True(manager.AddRecipeToCookingPlan(10));
+ 
+        Assert.Equal(new[] { 20, 10 }, manager.GetCookingPlan());
+    }
+ 
+    [Fact]
+    public void CookingPlanRejectsDuplicatesAndUnknownIds()
+    {
+        var manager = CreateManager();
+        manager.AddRecipeToCookingPlan(10);
+ 
+        Assert.False(manager.AddRecipeToCookingPlan(10));
+        Assert.False(manager.AddRecipeToCookingPlan(999));
+        Assert.Equal(1, manager.CookingPlanCount);
+    }
+ 
+    [Fact]
+    public void RemoveFromCookingPlan()
+    {
+        var manager = CreateManager();
+        manager.AddRecipeToCookingPlan(10);
+        manager.AddRecipeToCookingPlan(20);
+ 
+        Assert.True(manager.RemoveRecipeFromCookingPlan(10));
+        Assert.False(manager.RemoveRecipeFromCookingPlan(999));
+        Assert.Equal(new[] { 20 }, manager.GetCookingPlan());
+    }
+ 
+    [Fact]
+    public void EmptyStackIsHandledSafely()
+    {
+        var manager = CreateManager();
+ 
+        Assert.Null(manager.PeekLastRemovedRecipe());
+        Assert.False(manager.RestoreLastRemovedRecipe());
+    }
+ 
+    [Fact]
+    public void RestoreGoesToEndOfPlan()
+    {
+        var manager = CreateManager();
+        manager.AddRecipeToCookingPlan(10);
+        manager.AddRecipeToCookingPlan(20);
+        manager.RemoveRecipeFromCookingPlan(10);
+ 
+        Assert.True(manager.RestoreLastRemovedRecipe());
+ 
+        Assert.Equal(new[] { 20, 10 }, manager.GetCookingPlan());
+        Assert.Equal(0, manager.RemovedRecipeCount);
+    }
+ 
+    [Fact]
+    public void CompleteAllInstructions()
+    {
+        var manager = CreateManager();
+        manager.StartCooking(10);
+ 
+        Assert.Equal("First step", manager.CompleteNextInstruction());
+        Assert.Equal("Second step", manager.CompleteNextInstruction());
+ 
+        Assert.Null(manager.CompleteNextInstruction());
+        Assert.Null(manager.PeekNextInstruction());
+        Assert.Equal(0, manager.PendingInstructionCount);
+    }
+ 
+    [Fact]
+    public void StartCookingUnknownRecipe()
+    {
+        var manager = CreateManager();
+ 
+        Assert.False(manager.StartCooking(999));
+        Assert.Equal(0, manager.PendingInstructionCount);
+    }
+ 
+    [Fact]
+    public void StartCookingReplacesOldInstructions()
+    {
+        var manager = CreateManager();
+        manager.StartCooking(10);
+ 
+        manager.StartCooking(20);
+ 
+        Assert.Equal(0, manager.PendingInstructionCount);
+    }
+ 
+    [Fact]
+    public void RecipeStaysAfterCooking()
+    {
+        var manager = CreateManager();
+        manager.AddRecipeToCookingPlan(10);
+ 
+        manager.StartCooking(10);
+        manager.CompleteNextInstruction();
+        manager.CompleteNextInstruction();
+ 
+        Assert.Equal(new[] { 10 }, manager.GetCookingPlan());
+        Assert.Equal(0, manager.RemovedRecipeCount);
+        Assert.Equal(0, manager.PendingInstructionCount);
+    }
+
 
     private static RecipeManager CreateManager()
     {
