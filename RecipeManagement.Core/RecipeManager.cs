@@ -131,12 +131,17 @@ public sealed class RecipeManager : IRecipeManager
             return false;
         }
  
-        cookingPlan.Add(recipeId);
+        cookingPlan.AddLast(recipeId);
         return true;
     }
 
     public int? PeekLastRemovedRecipe()
     {
+        if (removedRecipes.Count == 0)
+        {
+            return null;
+        }
+
         return removedRecipes.Peek();
     }
 
@@ -165,6 +170,8 @@ public sealed class RecipeManager : IRecipeManager
         {
             instructions.Enqueue(step);
         }
+
+        return true;
     }
 
     public string? PeekNextInstruction() 
