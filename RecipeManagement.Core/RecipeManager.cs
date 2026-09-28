@@ -15,6 +15,7 @@ public sealed class RecipeManager : IRecipeManager
     List<string> shoppingList = new List<string>();
     LinkedList<int> cookingPlan = new LinkedList<int>();
     Stack<int> removedRecipes = new Stack<int>();
+    Queue<string> instructions = new Queue<string>();
     
     public RecipeManager(IEnumerable<Recipe> recipes)
     {
@@ -37,7 +38,7 @@ public sealed class RecipeManager : IRecipeManager
     public int RecipeCount => recipes.Count;
     public int ShoppingItemCount => shoppingList.Count;
     public int CookingPlanCount => cookingPlan.Count;
-    public int PendingInstructionCount => 0;
+    public int PendingInstructionCount => instructions.Count;
     public int RemovedRecipeCount => removedRecipes.Count;
 
     public bool AddRecipe(Recipe recipe)
@@ -151,14 +152,40 @@ public sealed class RecipeManager : IRecipeManager
         return plan;
     }
 
-    public bool StartCooking(int recipeId) =>
-        throw new NotImplementedException("Part A: implement StartCooking.");
+    public bool StartCooking(int recipeId) 
+    {
+        if (!recipes.ContainsKey(recipeId))
+        {
+            return false;
+        }
+ 
+        instructions.Clear();
+ 
+        foreach (string step in recipes[recipeId].Instructions)
+        {
+            instructions.Enqueue(step);
+        }
+    }
 
-    public string? PeekNextInstruction() =>
-        throw new NotImplementedException("Part A: implement PeekNextInstruction.");
+    public string? PeekNextInstruction() 
+    {
+        if (instructions.Count == 0)
+        {
+            return null;
+        }
+ 
+        return instructions.Peek();
+    }
 
-    public string? CompleteNextInstruction() =>
-        throw new NotImplementedException("Part A: implement CompleteNextInstruction.");
+    public string? CompleteNextInstruction()
+    {
+        if (instructions.Count == 0)
+        {
+            return null;
+        }
+ 
+        return instructions.Dequeue();
+    }
 
     public IReadOnlyList<Recipe> SearchByTitle(string searchText) =>
         throw new NotImplementedException("Part B: implement SearchByTitle.");
