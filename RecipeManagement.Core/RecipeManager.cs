@@ -252,11 +252,25 @@ public sealed class RecipeManager : IRecipeManager
         return (from r in recipies.Values where r.Ingredients.Any(i => i.Contains(searchText, StringComparison.OrdinalIgnoreCase))select r).ToList();
     }
 
-    public IReadOnlyList<Recipe> GetHighestProteinRecipes(int count) =>
-        throw new NotImplementedException("Part B: implement GetHighestProteinRecipes.");
+    public IReadOnlyList<Recipe> GetHighestProteinRecipes(int count)
+    {
+        if (count <= 0)
+        {
+            return new List<Recipe>();
+        }
 
-    public bool AddSavedRecipe(int recipeId) =>
-        throw new NotImplementedException("Part B: implement AddSavedRecipe.");
+        return (from r in recipe.Values where r.Protein.HasValue orderby r.Protein descending select r).Take(count).ToList();
+    }
+
+    public bool AddSavedRecipe(int recipeId) 
+    {
+        if (!recipes.ContainsKey(recipeId))
+        {
+            return false;
+        }
+
+        return savedRecipes.Add(recipeId);
+    }
 
     public bool RemoveSavedRecipe(int recipeId) =>
         throw new NotImplementedException("Part B: implement RemoveSavedRecipe.");
