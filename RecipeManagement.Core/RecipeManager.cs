@@ -272,12 +272,18 @@ public sealed class RecipeManager : IRecipeManager
         return savedRecipes.Add(recipeId);
     }
 
-    public bool RemoveSavedRecipe(int recipeId) =>
-        throw new NotImplementedException("Part B: implement RemoveSavedRecipe.");
+    public bool RemoveSavedRecipe(int recipeId) 
+    {
+        return savedRecepies.Remove(recipieID);
+    }
 
-    public bool IsRecipeSaved(int recipeId) =>
-        throw new NotImplementedException("Part B: implement IsRecipeSaved.");
+    public bool IsRecipeSaved(int recipeId) 
+    {
+        return savedRecipes.Contains(recipeId);
+    }
 
-    public IReadOnlyList<int> GetSavedRecipes() =>
-        throw new NotImplementedException("Part B: implement GetSavedRecipes.");
+    public IReadOnlyList<int> GetSavedRecipes() 
+    {
+        return new List<int>(savedRecepies);
+    }
 }
