@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RecipeManagement.Core;
 
@@ -16,7 +17,7 @@ public sealed class RecipeManager : IRecipeManager
     LinkedList<int> cookingPlan = new LinkedList<int>();
     Stack<int> removedRecipes = new Stack<int>();
     Queue<string> instructions = new Queue<string>();
-    HashSet<int> savedRecepies = New HashSet<int>();
+    HashSet<int> savedRecipes = new HashSet<int>();
     
     public RecipeManager(IEnumerable<Recipe> recipes)
     {
@@ -234,9 +235,10 @@ public sealed class RecipeManager : IRecipeManager
         return instructions.Dequeue();
     }
 
-    public IReadOnlyList<Recipe> SearchByTitle(string searchText) 
+     public IReadOnlyList<Recipe> SearchByTitle(string searchText)
     {
-        if (string.IsNullOrWhiteSpace(searchText)){
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
             return recipes.Values.ToList();
         }
 
@@ -245,11 +247,12 @@ public sealed class RecipeManager : IRecipeManager
 
     public IReadOnlyList<Recipe> SearchByIngredient(string searchText)
     {
-        if (string.IsNullOrWhiteSpace(searchText)){
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
             return recipes.Values.ToList();
         }
 
-        return (from r in recipies.Values where r.Ingredients.Any(i => i.Contains(searchText, StringComparison.OrdinalIgnoreCase))select r).ToList();
+        return (from r in recipes.Values where r.Ingredients.Any(i => i.Contains(searchText, StringComparison.OrdinalIgnoreCase)) select r).ToList();
     }
 
     public IReadOnlyList<Recipe> GetHighestProteinRecipes(int count)
@@ -259,10 +262,10 @@ public sealed class RecipeManager : IRecipeManager
             return new List<Recipe>();
         }
 
-        return (from r in recipe.Values where r.Protein.HasValue orderby r.Protein descending select r).Take(count).ToList();
+        return (from r in recipes.Values where r.Nutrition?.ProteinG != null orderby r.Nutrition.ProteinG descending select r).Take(count).ToList();
     }
 
-    public bool AddSavedRecipe(int recipeId) 
+    public bool AddSavedRecipe(int recipeId)
     {
         if (!recipes.ContainsKey(recipeId))
         {
@@ -272,18 +275,18 @@ public sealed class RecipeManager : IRecipeManager
         return savedRecipes.Add(recipeId);
     }
 
-    public bool RemoveSavedRecipe(int recipeId) 
+    public bool RemoveSavedRecipe(int recipeId)
     {
-        return savedRecepies.Remove(recipieID);
+        return savedRecipes.Remove(recipeId);
     }
 
-    public bool IsRecipeSaved(int recipeId) 
+    public bool IsRecipeSaved(int recipeId)
     {
         return savedRecipes.Contains(recipeId);
     }
 
-    public IReadOnlyList<int> GetSavedRecipes() 
+    public IReadOnlyList<int> GetSavedRecipes()
     {
-        return new List<int>(savedRecepies);
+        return new List<int>(savedRecipes);
     }
 }
